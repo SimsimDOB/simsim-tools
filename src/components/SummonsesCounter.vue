@@ -63,34 +63,62 @@ const removeFile = (index: number) => {
 </script>
 
 <template>
-  <div class="app-container">
-    <div class="header">
-      <h1 class="title">Sim Summonses Counter</h1>
+  <div
+    class="bg-[#2e3440] text-[#d8dee9] font-['MakoP'] text-sm flex flex-col h-full min-h-[600px] w-full max-w-[800px] mx-auto p-5 box-border"
+  >
+    <div class="text-center mb-5">
+      <h1 class="text-[28px] font-bold text-[#88c0d0] m-0">
+        Sim Summonses Counter
+      </h1>
     </div>
 
-    <div class="main-content">
-      <div class="pdf-table-container" @drop="onDrop" @dragover="onDragOver">
-        <table class="pdf-table">
+    <div class="flex-1 flex flex-col mb-5">
+      <div
+        class="flex-1 bg-[#3b4252] border border-[#4c566a] rounded-[5px] overflow-auto min-h-[300px]"
+        @drop="onDrop"
+        @dragover="onDragOver"
+      >
+        <table class="w-full border-collapse">
           <thead>
             <tr>
-              <th class="col-file">File</th>
-              <th class="col-count">Count</th>
-              <th class="col-deleted">Deleted</th>
+              <th
+                class="bg-[#4c566a] p-1.5 text-[#eceff4] font-bold text-left sticky top-0 w-auto"
+              >
+                File
+              </th>
+              <th
+                class="bg-[#4c566a] p-1.5 text-[#eceff4] font-bold text-left sticky top-0 w-[75px] text-center"
+              >
+                Count
+              </th>
+              <th
+                class="bg-[#4c566a] p-1.5 text-[#eceff4] font-bold text-left sticky top-0 w-[75px] text-center"
+              >
+                Deleted
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="files.length === 0">
-              <td colspan="3" class="empty-message">
+              <td
+                colspan="3"
+                class="text-center p-5 text-[#6fa0b0] p-1.5 border-b border-[#4c566a]"
+              >
                 Drag and drop PDF files here
               </td>
             </tr>
             <tr v-for="(file, index) in files" :key="index">
-              <td>{{ file.name }}</td>
-              <td class="text-center">
+              <td class="p-1.5 border-b border-[#4c566a]">{{ file.name }}</td>
+              <td class="text-center p-1.5 border-b border-[#4c566a]">
                 {{ file.count !== null ? file.count : "-" }}
               </td>
-              <td class="text-center">
-                <button class="delete-btn" @click="removeFile(index)">X</button>
+              <td class="text-center p-1.5 border-b border-[#4c566a]">
+                <button
+                  class="bg-transparent text-[#bf616a] px-1.5 py-0.5 hover:bg-[#4c566a] border-none rounded-md font-bold cursor-pointer font-['MakoP'] text-sm"
+                  @click="removeFile(index)"
+                >
+                  X
+                </button>
               </td>
             </tr>
           </tbody>
@@ -98,12 +126,24 @@ const removeFile = (index: number) => {
       </div>
     </div>
 
-    <div class="bottom-layout">
-      <div class="buttons">
-        <button @click="countSummonses">Count</button>
-        <button @click="resetSummonses">Reset</button>
+    <div class="flex flex-col gap-[15px]">
+      <div class="flex justify-center gap-[10px]">
+        <button
+          class="bg-[#88c0d0] border-none rounded-md px-3 py-2 text-[#2e3440] font-bold cursor-pointer font-['MakoP'] text-sm hover:bg-[#81a1c1] active:bg-[#5e81ac]"
+          @click="countSummonses"
+        >
+          Count
+        </button>
+        <button
+          class="bg-[#88c0d0] border-none rounded-md px-3 py-2 text-[#2e3440] font-bold cursor-pointer font-['MakoP'] text-sm hover:bg-[#81a1c1] active:bg-[#5e81ac]"
+          @click="resetSummonses"
+        >
+          Reset
+        </button>
       </div>
-      <div class="count-label">Total Summonses: {{ totalSummonses }}</div>
+      <div class="text-center text-2xl font-bold text-[#88c0d0]">
+        Total Summonses: {{ totalSummonses }}
+      </div>
     </div>
   </div>
 </template>
@@ -112,141 +152,5 @@ const removeFile = (index: number) => {
 @font-face {
   font-family: "MakoP";
   src: url("/fonts/MakoP.ttf") format("truetype");
-}
-
-.app-container {
-  background-color: #2e3440;
-  color: #d8dee9;
-  font-family: "MakoP", sans-serif;
-  font-size: 14px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 600px; /* Match python app height roughly */
-  width: 100%;
-  max-width: 800px; /* Match python app width */
-  margin: 0 auto;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.title {
-  font-size: 28px;
-  font-weight: bold;
-  color: #88c0d0;
-  margin: 0;
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
-}
-
-.pdf-table-container {
-  flex: 1;
-  background-color: #3b4252;
-  border: 1px solid #4c566a;
-  border-radius: 5px;
-  overflow: auto;
-  min-height: 300px;
-}
-
-.pdf-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.pdf-table th {
-  background-color: #4c566a;
-  padding: 6px;
-  color: #eceff4;
-  font-weight: bold;
-  text-align: left;
-  position: sticky;
-  top: 0;
-}
-
-.pdf-table td {
-  padding: 6px;
-  border-bottom: 1px solid #4c566a;
-}
-
-.col-file {
-  width: auto;
-}
-
-.col-count {
-  width: 75px;
-  text-align: center;
-}
-
-.col-deleted {
-  width: 75px;
-  text-align: center;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.empty-message {
-  text-align: center;
-  padding: 20px;
-  color: #6fa0b0;
-}
-
-.bottom-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.buttons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-button {
-  background-color: #88c0d0;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: #2e3440;
-  font-weight: bold;
-  cursor: pointer;
-  font-family: "MakoP", sans-serif;
-  font-size: 14px;
-}
-
-button:hover {
-  background-color: #81a1c1;
-}
-
-button:active {
-  background-color: #5e81ac;
-}
-
-.delete-btn {
-  background-color: transparent;
-  color: #bf616a;
-  padding: 2px 6px;
-}
-.delete-btn:hover {
-  background-color: #4c566a;
-}
-
-.count-label {
-  text-align: center;
-  font-size: 24px; /* Slightly smaller than 48px to fit better in web context, but can be adjusted */
-  font-weight: bold;
-  color: #88c0d0;
 }
 </style>
