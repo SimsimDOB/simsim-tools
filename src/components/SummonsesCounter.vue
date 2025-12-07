@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useSummonsesCount } from "@/composables/useSummonsesCount";
 
-interface PdfFile {
-  name: string;
-  count: number | null;
-  deleted: boolean;
+interface FileRecord {
+  file: File;
+  count: number;
+  removed_count: number;
+  removed_pages: string;
 }
 
-const files = ref<PdfFile[]>([]);
+const { countSummonses } = useSummonsesCount();
+
+const isLoading = ref(false);
+const fileRecords = ref<FileRecord[]>([]);
 const totalSummonses = ref(0);
 
 const onDrop = (event: DragEvent) => {
@@ -19,10 +24,11 @@ const onDrop = (event: DragEvent) => {
         file!.type === "application/pdf" ||
         file!.name.toLowerCase().endsWith(".pdf")
       ) {
-        files.value.push({
-          name: file!.name,
-          count: null,
-          deleted: false,
+        fileRecords.value.push({
+          file: file!,
+          count: 0,
+          removed_count: 0,
+          removed_pages: "",
         });
       }
     }
@@ -33,117 +39,187 @@ const onDragOver = (event: DragEvent) => {
   event.preventDefault();
 };
 
-const countSummonses = () => {
-  // Placeholder logic for counting summonses
-  // In a real web app, this would likely involve parsing the PDF in the browser (e.g. pdf.js) or sending it to a backend.
-  // For now, we'll just simulate a count.
-  let total = 0;
-  files.value.forEach((file) => {
-    if (!file.deleted) {
-      // Mock count for demonstration
-      const mockCount = Math.floor(Math.random() * 10) + 1;
-      file.count = mockCount;
-      total += mockCount;
-    }
-  });
-  totalSummonses.value = total;
+const handleCountSummonses = () => {
+  if (fileRecords.value.length === 0) return;
+
+  isLoading.value = true;
+
+  const files = fileRecords.value.map((record) => record.file);
+
+  countSummonses(files)
+    .then((response) => {
+      totalSummonses.value = response.total_count;
+      console.log(response);
+
+      response.details.forEach((detail: any) => {
+        const file = fileRecords.value.find(
+          (f) => f.file.name === detail.filename
+        );
+        if (file) {
+          file.count = detail.count;
+          file.removed_count = detail.removed_count;
+          file.removed_pages = detail.removed_pages;
+        }
+      });
+    })
+    .catch((error) => {
+      console.error("Error counting summonses:", error);
+      alert("An error occurred while counting summonses.");
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
 };
 
-const resetSummonses = () => {
-  files.value = [];
+const handleResetSummonses = () => {
+  fileRecords.value = [];
   totalSummonses.value = 0;
 };
 
 const removeFile = (index: number) => {
-  files.value.splice(index, 1);
-  // Recalculate total if needed, or just let the next count update it.
-  // If we want live update:
-  // totalSummonses.value = files.value.reduce((acc, curr) => acc + (curr.count || 0), 0)
+  fileRecords.value.splice(index, 1);
 };
 </script>
 
 <template>
   <div
-    class="bg-[#2e3440] text-[#d8dee9] font-['MakoP'] text-sm flex flex-col h-full min-h-[600px] w-full max-w-[800px] mx-auto p-5 box-border"
+    class="min-h-screen bg-[#2e3440] text-[#d8dee9] font-['MakoP'] flex items-center justify-center p-8"
   >
-    <div class="text-center mb-5">
-      <h1 class="text-[28px] font-bold text-[#88c0d0] m-0">
-        Sim Summonses Counter
-      </h1>
-    </div>
+    <div class="w-full max-w-4xl flex flex-col gap-6">
+      <!-- Header -->
+      <header class="text-center">
+        <h1 class="text-3xl font-bold text-[#88c0d0] tracking-wide">
+          Sim Summonses Counter
+        </h1>
+      </header>
 
-    <div class="flex-1 flex flex-col mb-5">
-      <div
-        class="flex-1 bg-[#3b4252] border border-[#4c566a] rounded-[5px] overflow-auto min-h-[300px]"
-        @drop="onDrop"
-        @dragover="onDragOver"
-      >
-        <table class="w-full border-collapse">
-          <thead>
-            <tr>
-              <th
-                class="bg-[#4c566a] p-1.5 text-[#eceff4] font-bold text-left sticky top-0 w-auto"
-              >
-                File
-              </th>
-              <th
-                class="bg-[#4c566a] p-1.5 text-[#eceff4] font-bold text-left sticky top-0 w-[75px] text-center"
-              >
-                Count
-              </th>
-              <th
-                class="bg-[#4c566a] p-1.5 text-[#eceff4] font-bold text-left sticky top-0 w-[75px] text-center"
-              >
-                Deleted
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="files.length === 0">
-              <td
-                colspan="3"
-                class="text-center p-5 text-[#6fa0b0] p-1.5 border-b border-[#4c566a]"
-              >
-                Drag and drop PDF files here
-              </td>
-            </tr>
-            <tr v-for="(file, index) in files" :key="index">
-              <td class="p-1.5 border-b border-[#4c566a]">{{ file.name }}</td>
-              <td class="text-center p-1.5 border-b border-[#4c566a]">
-                {{ file.count !== null ? file.count : "-" }}
-              </td>
-              <td class="text-center p-1.5 border-b border-[#4c566a]">
-                <button
-                  class="bg-transparent text-[#bf616a] px-1.5 py-0.5 hover:bg-[#4c566a] border-none rounded-md font-bold cursor-pointer font-['MakoP'] text-sm"
-                  @click="removeFile(index)"
+      <!-- Main Content Area -->
+      <main class="flex-1 flex flex-col gap-4">
+        <!-- Drop Zone / Table Container -->
+        <div
+          class="bg-[#3b4252] border-2 border-[#4c566a] border-dashed rounded-lg overflow-hidden min-h-[400px] flex flex-col relative transition-colors duration-200 hover:border-[#88c0d0]"
+          @drop="onDrop"
+          @dragover="onDragOver"
+        >
+          <!-- Empty State -->
+          <div
+            v-if="fileRecords.length === 0"
+            class="absolute inset-0 flex flex-col items-center justify-center text-[#eceff4] pointer-events-none"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-16 w-16 mb-4 text-[#4c566a]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+            <p class="text-lg font-medium">Drag and drop PDF files here</p>
+          </div>
+
+          <!-- Table -->
+          <div v-else class="flex-1 overflow-auto custom-scrollbar">
+            <table class="w-full border-collapse text-left">
+              <thead class="sticky top-0 z-10">
+                <tr class="bg-[#4c566a] text-[#eceff4]">
+                  <th class="p-3 font-bold w-full">File Name</th>
+                  <th class="p-3 font-bold text-center w-24">Count</th>
+                  <th class="p-3 font-bold text-center w-24">Removed</th>
+                  <th class="p-3 font-bold text-center w-32">Removed Pages</th>
+                  <th class="p-3 font-bold text-center w-16"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#4c566a]">
+                <tr
+                  v-for="(fileRecord, index) in fileRecords"
+                  :key="index"
+                  class="hover:bg-[#434c5e] transition-colors"
                 >
-                  X
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+                  <td
+                    class="p-3 truncate max-w-xs"
+                    :title="fileRecord.file.name"
+                  >
+                    {{ fileRecord.file.name }}
+                  </td>
+                  <td
+                    class="p-3 text-center font-mono text-[#88c0d0] font-bold"
+                  >
+                    {{ fileRecord.count || "-" }}
+                  </td>
+                  <td
+                    class="p-3 text-center font-mono text-[#bf616a] font-bold"
+                  >
+                    {{ fileRecord.removed_count || "-" }}
+                  </td>
+                  <td
+                    class="p-3 text-center font-mono text-[#d08770] font-bold break-all"
+                  >
+                    {{
+                      fileRecord.removed_pages ? fileRecord.removed_pages : "-"
+                    }}
+                  </td>
+                  <td class="p-3 text-center">
+                    <button
+                      class="text-[#bf616a] hover:text-[#d08770] hover:bg-[#2e3440] p-1.5 rounded transition-colors"
+                      @click="removeFile(index)"
+                      title="Remove file"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-    <div class="flex flex-col gap-[15px]">
-      <div class="flex justify-center gap-[10px]">
-        <button
-          class="bg-[#88c0d0] border-none rounded-md px-3 py-2 text-[#2e3440] font-bold cursor-pointer font-['MakoP'] text-sm hover:bg-[#81a1c1] active:bg-[#5e81ac]"
-          @click="countSummonses"
-        >
-          Count
-        </button>
-        <button
-          class="bg-[#88c0d0] border-none rounded-md px-3 py-2 text-[#2e3440] font-bold cursor-pointer font-['MakoP'] text-sm hover:bg-[#81a1c1] active:bg-[#5e81ac]"
-          @click="resetSummonses"
-        >
-          Reset
-        </button>
-      </div>
-      <div class="text-center text-2xl font-bold text-[#88c0d0]">
-        Total Summonses: {{ totalSummonses }}
-      </div>
+        <!-- Controls -->
+        <div class="flex flex-col items-center gap-6 mt-2">
+          <div class="flex gap-4">
+            <button
+              class="bg-[#88c0d0] text-[#2e3440] font-bold py-2 px-6 rounded-md shadow-md hover:bg-[#81a1c1] active:bg-[#5e81ac] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="handleCountSummonses"
+              :disabled="isLoading || fileRecords.length === 0"
+            >
+              {{ isLoading ? "Counting..." : "Count Summonses" }}
+            </button>
+            <button
+              class="bg-[#4c566a] text-[#eceff4] font-bold py-2 px-6 rounded-md shadow-md hover:bg-[#434c5e] active:bg-[#3b4252] transition-colors"
+              @click="handleResetSummonses"
+            >
+              Reset
+            </button>
+          </div>
+
+          <div class="text-center">
+            <p
+              class="text-[#88c0d0] text-lg font-medium uppercase tracking-wider mb-1"
+            >
+              Total Summonses
+            </p>
+            <p class="text-5xl font-bold text-[#eceff4]">
+              {{ totalSummonses }}
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
   </div>
 </template>
@@ -152,5 +228,24 @@ const removeFile = (index: number) => {
 @font-face {
   font-family: "MakoP";
   src: url("/fonts/MakoP.ttf") format("truetype");
+}
+
+/* Custom Scrollbar for Webkit */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #2e3440;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #88c0d0;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #81a1c1;
 }
 </style>
