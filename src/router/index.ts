@@ -11,7 +11,7 @@ const routes = [
     name: "SummonsesCounter",
     component: SummonsesCounter,
     meta: { requiresGuest: true },
-  }
+  },
 ];
 
 const router = createRouter({

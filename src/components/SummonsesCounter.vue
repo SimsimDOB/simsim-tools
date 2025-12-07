@@ -53,7 +53,7 @@ const handleCountSummonses = () => {
 
       response.details.forEach((detail: any) => {
         const file = fileRecords.value.find(
-          (f) => f.file.name === detail.filename
+          (f) => f.file.name === detail.filename,
         );
         if (file) {
           file.count = detail.count;
@@ -161,7 +161,9 @@ const removeFile = (index: number) => {
                     class="p-3 text-center font-mono text-[#d08770] font-bold break-all"
                   >
                     {{
-                      fileRecord.removed_pages ? fileRecord.removed_pages : "-"
+                      fileRecord.removed_pages
+                        ? fileRecord.removed_pages
+                        : "-"
                     }}
                   </td>
                   <td class="p-3 text-center">
