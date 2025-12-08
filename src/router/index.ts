@@ -23,10 +23,14 @@ const router = createRouter({
 });
 
 router.afterEach((to) => {
+  const icon_link = () => {
+    return `/simsim-tools${(to.meta.icon as string) || "/vite.svg"}`;
+  };
+
   const link = document.querySelector("link[rel~='icon']");
   if (link) {
     // Use the icon from route meta, or fallback to default
-    link.setAttribute("href", (to.meta.icon as string) || "/vite.svg");
+    link.setAttribute("href", icon_link());
   }
 });
 
