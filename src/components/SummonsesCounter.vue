@@ -15,15 +15,15 @@ const isLoading = ref(false);
 const fileRecords = ref<FileRecord[]>([]);
 const totalSummonses = ref(0);
 
-const onDrop = (event: DragEvent) => {
-  event.preventDefault();
-  if (event.dataTransfer?.files) {
-    for (let i = 0; i < event.dataTransfer.files.length; i++) {
-      const file = event.dataTransfer.files[i];
-      if (
-        file!.type === "application/pdf" ||
-        file!.name.toLowerCase().endsWith(".pdf")
-      ) {
+const processFiles = (files: FileList) => {
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (
+      file!.type === "application/pdf" ||
+      file!.name.toLowerCase().endsWith(".pdf")
+    ) {
+      const exists = fileRecords.value.some((r) => r.file.name === file!.name);
+      if (!exists) {
         fileRecords.value.push({
           file: file!,
           count: 0,
@@ -32,6 +32,13 @@ const onDrop = (event: DragEvent) => {
         });
       }
     }
+  }
+};
+
+const onDrop = (event: DragEvent) => {
+  event.preventDefault();
+  if (event.dataTransfer?.files) {
+    processFiles(event.dataTransfer.files);
   }
 };
 
@@ -97,7 +104,7 @@ const removeFile = (index: number) => {
       <main class="flex-1 flex flex-col gap-4">
         <!-- Drop Zone / Table Container -->
         <div
-          class="bg-[#3b4252] border-2 border-[#4c566a] border-dashed rounded-lg overflow-hidden min-h-[400px] flex flex-col relative transition-colors duration-200 hover:border-[#88c0d0]"
+          class="bg-[#3b4252] border-2 border-[#4c566a] border-dashed rounded-lg overflow-hidden h-[400px] flex flex-col relative transition-colors duration-200 hover:border-[#88c0d0]"
           @drop="onDrop"
           @dragover="onDragOver"
         >
