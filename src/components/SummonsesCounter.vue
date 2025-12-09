@@ -83,7 +83,7 @@ const removeFile = (index: number) => {
 
 <template>
   <div
-    class="min-h-screen bg-[#2e3440] text-[#d8dee9] font-['MakoP'] flex items-center justify-center p-8"
+    class="h-full bg-[#2e3440] text-[#d8dee9] font-['MakoP'] flex items-center justify-center p-8"
   >
     <div class="w-full max-w-4xl flex flex-col gap-6">
       <!-- Header -->

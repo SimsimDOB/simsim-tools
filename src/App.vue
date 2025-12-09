@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import SummonsesCounter from "./components/SummonsesCounter.vue";
+import Navbar from "@/components/Navbar.vue";
 </script>
 
 <template>
-  <SummonsesCounter />
+  <div class="h-screen flex flex-col bg-[#2e3440] overflow-hidden">
+    <Navbar />
+    <main class="flex-1 overflow-auto">
+      <router-view />
+    </main>
+  </div>
 </template>
 
 <style scoped></style>
