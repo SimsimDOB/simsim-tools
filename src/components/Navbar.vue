@@ -11,8 +11,18 @@
               src="/simsim_logo.png"
               alt="Simsim Tools Logo"
             />
-            <span class="ml-3 text-xl font-bold text-[#88c0d0]"
-            >Simsim Tools</span>
+            <!-- <span class="ml-3 text-xl font-bold text-[#88c0d0]"
+              >Simsim Tools</span
+            > -->
+          </div>
+          <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <router-link
+              to="/summonses-counter"
+              class="border-transparent text-[#d8dee9] hover:border-[#88c0d0] hover:text-[#88c0d0] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200"
+              active-class="border-[#88c0d0] text-[#88c0d0]"
+            >
+              Summonses Counter
+            </router-link>
           </div>
         </div>
       </div>
