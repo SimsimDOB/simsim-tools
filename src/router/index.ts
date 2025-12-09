@@ -13,6 +13,7 @@ const routes = [
     meta: {
       requiresGuest: true,
       icon: "/summonses_counter.png",
+      title: "Summonses Counter",
     },
   },
 ];
@@ -31,6 +32,10 @@ router.afterEach((to) => {
   if (link) {
     // Use the icon from route meta, or fallback to default
     link.setAttribute("href", icon_link());
+  }
+
+  if (to.meta.title) {
+    document.title = to.meta.title as string;
   }
 });
 

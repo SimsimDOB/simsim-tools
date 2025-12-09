@@ -89,7 +89,7 @@ const removeFile = (index: number) => {
       <!-- Header -->
       <header class="text-center">
         <h1 class="text-3xl font-bold text-[#88c0d0] tracking-wide">
-          Sim Summonses Counter
+          Summonses Counter
         </h1>
       </header>
 

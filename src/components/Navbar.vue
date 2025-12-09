@@ -12,8 +12,7 @@
               alt="Simsim Tools Logo"
             />
             <span class="ml-3 text-xl font-bold text-[#88c0d0]"
-              >Simsim Tools</span
-            >
+            >Simsim Tools</span>
           </div>
         </div>
       </div>
