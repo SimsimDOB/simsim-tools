@@ -1,10 +1,16 @@
 import { createRouter, createWebHistory } from "vue-router";
 import SummonsesCounter from "@/components/SummonsesCounter.vue";
+import Home from "@/components/Home.vue";
 
 const routes = [
   {
     path: "/",
-    redirect: "/summonses-counter",
+    name: "Home",
+    component: Home,
+    meta: {
+      icon: "/star.png",
+      title: "Simsim Tools",
+    },
   },
   {
     path: "/summonses-counter",

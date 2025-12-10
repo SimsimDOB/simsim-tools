@@ -1,4 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+const router = useRouter();
+</script>
 
 <template>
   <nav class="bg-[#3b4252] shadow-md border-b border-[#4c566a]">
@@ -7,9 +10,10 @@
         <div class="flex">
           <div class="flex-shrink-0 flex items-center">
             <img
-              class="h-8 w-auto"
+              class="h-8 w-auto cursor-pointer"
               src="/simsim_logo.png"
               alt="Simsim Tools Logo"
+              @click="router.push('/');"
             />
             <!-- <span class="ml-3 text-xl font-bold text-[#88c0d0]"
               >Simsim Tools</span
