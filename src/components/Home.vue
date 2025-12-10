@@ -23,7 +23,7 @@ const getIconPath = (iconPath: string) => {
 </script>
 
 <template>
-  <div class="h-full bg-[#2e3440] p-8 flex items-center justify-center">
+  <div class="min-h-full bg-[#2e3440] p-8 flex items-center justify-center">
     <div class="flex flex-wrap justify-center gap-6 max-w-6xl w-full">
       <div
         v-for="tool in tools"
