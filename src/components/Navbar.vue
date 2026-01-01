@@ -16,7 +16,7 @@ const visibleRoutes = routes.filter((r) => r.name !== "Home");
               class="h-8 w-auto cursor-pointer"
               src="/simsim_logo.png"
               alt="Simsim Tools Logo"
-              @click="router.push('/')"
+              @click='router.push("/")'
             />
             <!-- <span class="ml-3 text-xl font-bold text-[#88c0d0]"
               >Simsim Tools</span

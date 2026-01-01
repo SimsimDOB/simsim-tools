@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import routes from "@/router/routes"
+import routes from "@/router/routes";
 
 const router = useRouter();
 const visibleRoutes = routes.filter((r) => r.name !== "Home");
