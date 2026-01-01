@@ -114,12 +114,6 @@ const merge_files = async () => {
 
   const files = fileItems.value.map((item) => item.file);
 
-  // Ensure filename ends with .pdf
-  let filename = outputFilename.value;
-  if (!filename.toLowerCase().endsWith(".pdf")) {
-    filename += ".pdf";
-  }
-
   mergePdfs(files)
     .then((response) => {
       if (downloadUrl.value) {
@@ -127,7 +121,9 @@ const merge_files = async () => {
       }
 
       // Create download link
-      const url = window.URL.createObjectURL(new Blob([response]));
+      const url = window.URL.createObjectURL(
+        new Blob([response], { type: "application/pdf" }),
+      );
       downloadUrl.value = url;
     })
     .catch((error) => {
@@ -163,10 +159,14 @@ const validExtensionsString = () => {
             @dragover.prevent="onDragOver"
             @dragleave.prevent="onDragLeave"
             @drop.prevent="onDrop"
-            :class="[
-              'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg transition-colors border-[#4c566a] hover:border-[#88c0d0]',
-              isDragging ? 'border-[#88c0d0] bg-[#4c566a]' : 'bg-[#434c5e]',
-            ]"
+            :class='
+              [
+                "flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg transition-colors border-[#4c566a] hover:border-[#88c0d0]",
+                isDragging
+                  ? "border-[#88c0d0] bg-[#4c566a]"
+                  : "bg-[#434c5e]",
+              ]
+            '
           >
             <div class="flex flex-col items-center justify-center pt-5 pb-6">
               <svg
@@ -199,7 +199,7 @@ const validExtensionsString = () => {
       <div
         v-else
         class="mb-6 border-2 border-transparent rounded-lg transition-colors flex-1 min-h-0 flex flex-col"
-        :class="{ 'border-[#88c0d0] bg-[#4c566a] bg-opacity-20': isDragging }"
+        :class='{ "border-[#88c0d0] bg-[#4c566a] bg-opacity-20": isDragging }'
         @dragover.prevent="onDragOver"
         @dragleave.prevent="onDragLeave"
         @drop.prevent="onDrop"
@@ -214,17 +214,18 @@ const validExtensionsString = () => {
             @dragover.prevent="onDragOverItem(index)"
             @drop="onDropReorder(index)"
             class="relative flex items-center justify-between bg-[#434c5e] px-3 rounded border border-[#4c566a] transition-all duration-200"
-            :class="{ 'opacity-50': draggedItemIndex === index }"
+            :class='{ "opacity-50": draggedItemIndex === index }'
           >
             <div
               v-if="
                 draggedItemIndex !== null &&
-                dragOverIndex === index &&
-                draggedItemIndex !== index
+                  dragOverIndex === index &&
+                  draggedItemIndex !== index
               "
               class="absolute left-0 right-0 h-1 bg-[#88c0d0] rounded-full pointer-events-none z-10"
-              :class="draggedItemIndex > index ? '-top-1' : '-bottom-1'"
-            ></div>
+              :class='draggedItemIndex > index ? "-top-1" : "-bottom-1"'
+            >
+            </div>
 
             <!-- Drag Handle -->
             <div
@@ -250,13 +251,12 @@ const validExtensionsString = () => {
             </div>
 
             <div class="flex items-center truncate flex-1 mr-4">
-              <span class="text-[#88c0d0] text-sm font-mono mr-3"
-                >{{ index + 1 }}.</span
-              >
+              <span class="text-[#88c0d0] text-sm font-mono mr-3">{{
+                  index + 1
+                }}.</span>
               <span class="truncate text-sm">{{ file.file.name }}</span>
               <span class="ml-2 text-xs text-[#d8dee9] opacity-60"
-                >({{ (file.file.size / 1024 / 1024).toFixed(2) }} MB)</span
-              >
+              >({{ (file.file.size / 1024 / 1024).toFixed(2) }} MB)</span>
             </div>
             <div class="flex space-x-2">
               <button
@@ -363,12 +363,14 @@ const validExtensionsString = () => {
                     r="10"
                     stroke="currentColor"
                     stroke-width="4"
-                  ></circle>
+                  >
+                  </circle>
                   <path
                     class="opacity-75"
                     fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
+                  >
+                  </path>
                 </svg>
               </span>
               {{ isUploading ? "Merging..." : "Merge Files" }}
@@ -390,8 +392,7 @@ const validExtensionsString = () => {
           class="flex flex-col items-center justify-center bg-[#434c5e] p-4 rounded-lg border border-[#4c566a] aspect-square"
         >
           <label class="block text-sm font-medium text-[#d8dee9] mb-2"
-            >Output file</label
-          >
+          >Output file</label>
           <a
             :href="downloadUrl"
             :download="outputFilename"
