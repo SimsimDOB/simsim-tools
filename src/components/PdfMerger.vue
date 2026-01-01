@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import api from "@/services/api";
+import { usePdfMerge } from "@/composables/usePdfMerge";
 
 interface FileItem {
   id: string;
   file: File;
 }
 
-const files = ref<FileItem[]>([]);
+const { mergePdfs } = usePdfMerge();
+
+const fileItems = ref<FileItem[]>([]);
 const outputFilename = ref("merged.pdf");
 const isUploading = ref(false);
 const isDragging = ref(false);
@@ -43,9 +45,9 @@ const onDropReorder = (index: number) => {
   dragOverIndex.value = null;
   if (draggedItemIndex.value !== null) {
     const draggedIndex = draggedItemIndex.value;
-    const item = files.value[draggedIndex]!;
-    files.value.splice(draggedIndex, 1);
-    files.value.splice(index, 0, item);
+    const item = fileItems.value[draggedIndex]!;
+    fileItems.value.splice(draggedIndex, 1);
+    fileItems.value.splice(index, 0, item);
     draggedItemIndex.value = null;
   }
 };
@@ -55,7 +57,7 @@ const handleFiles = (fileList: FileList) => {
     const file = fileList[i];
     const fileName = file!.name.toLowerCase();
     if (validExtensions.some((ext) => fileName.endsWith(ext))) {
-      files.value.push({
+      fileItems.value.push({
         id: Math.random().toString(36).substring(7),
         file: file!,
       });
@@ -81,76 +83,60 @@ const onDrop = (e: DragEvent) => {
 };
 
 const removeFile = (index: number) => {
-  files.value.splice(index, 1);
+  fileItems.value.splice(index, 1);
 };
 
 const moveUp = (index: number) => {
   if (index > 0) {
-    const temp = files.value[index]!;
-    files.value[index] = files.value[index - 1]!;
-    files.value[index - 1] = temp;
+    const temp = fileItems.value[index]!;
+    fileItems.value[index] = fileItems.value[index - 1]!;
+    fileItems.value[index - 1] = temp;
   }
 };
 
 const moveDown = (index: number) => {
-  if (index < files.value.length - 1) {
-    const temp = files.value[index]!;
-    files.value[index] = files.value[index + 1]!;
-    files.value[index + 1] = temp;
+  if (index < fileItems.value.length - 1) {
+    const temp = fileItems.value[index]!;
+    fileItems.value[index] = fileItems.value[index + 1]!;
+    fileItems.value[index + 1] = temp;
   }
 };
 
 const clearFiles = () => {
-  files.value = [];
+  fileItems.value = [];
   outputFilename.value = "merged.pdf";
 };
 
 const merge_files = async () => {
-  if (files.value.length === 0) return;
+  if (fileItems.value.length === 0) return;
 
   isUploading.value = true;
-  const formData = new FormData();
-  files.value.forEach((fileItem) => {
-    formData.append("files", fileItem.file);
-  });
+
+  const files = fileItems.value.map((item) => item.file);
 
   // Ensure filename ends with .pdf
   let filename = outputFilename.value;
   if (!filename.toLowerCase().endsWith(".pdf")) {
     filename += ".pdf";
   }
-  // Note: The backend might not currently use this field, but we send it for completeness
-  // and use it for the download attribute.
-  formData.append("output_filename", filename);
 
-  try {
-    const response = await api.post("/v1/pdf-merge", formData, {
-      responseType: "blob",
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+  mergePdfs(files)
+    .then((response) => {
+      if (downloadUrl.value) {
+        window.URL.revokeObjectURL(downloadUrl.value);
+      }
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response]));
+      downloadUrl.value = url;
+    })
+    .catch((error) => {
+      console.error("Error merging PDFs:", error);
+      alert(`An error occurred while merging PDFs. ${error.message}`);
+    })
+    .finally(() => {
+      isUploading.value = false;
     });
-
-    if (downloadUrl.value) {
-      window.URL.revokeObjectURL(downloadUrl.value);
-    }
-
-    // Create download link
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    downloadUrl.value = url;
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  } catch (error) {
-    console.error("Error merging PDFs:", error);
-    alert("Failed to merge PDFs. Please try again.");
-  } finally {
-    isUploading.value = false;
-  }
 };
 
 const validExtensionsString = () => {
@@ -171,7 +157,7 @@ const validExtensionsString = () => {
       </h1>
 
       <!-- File Upload -->
-      <div v-if="files.length === 0" class="mb-6">
+      <div v-if="fileItems.length === 0" class="mb-6">
         <div class="flex items-center justify-center w-full">
           <div
             @dragover.prevent="onDragOver"
@@ -219,11 +205,11 @@ const validExtensionsString = () => {
         @drop.prevent="onDrop"
       >
         <h2 class="text-xl font-semibold text-[#88c0d0] mb-3 px-2">
-          Selected Files ({{ files.length }})
+          Selected Files ({{ fileItems.length }})
         </h2>
         <ul class="space-y-0.5 overflow-y-auto pr-2 py-1 px-2 flex-1">
           <li
-            v-for="(file, index) in files"
+            v-for="(file, index) in fileItems"
             :key="file.id"
             @dragover.prevent="onDragOverItem(index)"
             @drop="onDropReorder(index)"
@@ -296,7 +282,7 @@ const validExtensionsString = () => {
               </button>
               <button
                 @click="moveDown(index)"
-                :disabled="index === files.length - 1"
+                :disabled="index === fileItems.length - 1"
                 class="p-1.5 rounded hover:bg-[#4c566a] text-[#d8dee9] hover:text-[#88c0d0] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 title="Move Down"
               >
@@ -360,7 +346,7 @@ const validExtensionsString = () => {
           <div class="flex-1 flex items-end space-x-4">
             <button
               @click="merge_files"
-              :disabled="files.length === 0 || isUploading"
+              :disabled="fileItems.length === 0 || isUploading"
               class="flex-1 bg-[#a3be8c] text-[#2e3440] font-bold py-2 px-4 rounded hover:bg-[#b1d196] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex justify-center items-center"
             >
               <span v-if="isUploading" class="mr-2">
@@ -390,7 +376,7 @@ const validExtensionsString = () => {
 
             <button
               @click="clearFiles"
-              :disabled="files.length === 0"
+              :disabled="fileItems.length === 0"
               class="bg-[#bf616a] text-[#2e3440] font-bold py-2 px-4 rounded hover:bg-[#d08770] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Clear All
@@ -409,7 +395,7 @@ const validExtensionsString = () => {
           <a
             :href="downloadUrl"
             :download="outputFilename"
-            class="h-[42px] w-[42px] flex items-center justify-center rounded text-[#88c0d0] hover:bg-[#88c0d0] hover:text-[#2e3440] transition-colors border-2 border-[#88c0d0]"
+            class="h-[42px] w-[42px] flex items-center justify-center rounded text-[#88c0d0] hover:bg-[#88c0d0] hover:text-[#2e3440] transition-colors"
             title="Download Merged PDF"
           >
             <svg

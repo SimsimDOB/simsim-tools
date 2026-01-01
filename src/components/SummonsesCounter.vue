@@ -71,7 +71,7 @@ const handleCountSummonses = () => {
     })
     .catch((error) => {
       console.error("Error counting summonses:", error);
-      alert("An error occurred while counting summonses.");
+      alert(`An error occurred while counting summonses. ${error.message}`);
     })
     .finally(() => {
       isLoading.value = false;
