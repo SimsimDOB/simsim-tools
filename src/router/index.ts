@@ -1,28 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import SummonsesCounter from "@/components/SummonsesCounter.vue";
-import Home from "@/components/Home.vue";
-
-const routes = [
-  {
-    path: "/",
-    name: "Home",
-    component: Home,
-    meta: {
-      icon: "/star.png",
-      title: "Simsim Tools",
-    },
-  },
-  {
-    path: "/summonses-counter",
-    name: "SummonsesCounter",
-    component: SummonsesCounter,
-    meta: {
-      requiresGuest: true,
-      icon: "/summonses_counter.png",
-      title: "Summonses Counter",
-    },
-  },
-];
+import routes from "./routes.ts"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
