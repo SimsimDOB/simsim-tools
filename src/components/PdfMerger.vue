@@ -126,7 +126,7 @@ const merge_files = async () => {
     .then(async (response) => {
       // Response contains { filename: "merged_xxx.pdf" }
       const filename = response.filename;
-      const baseUrl = import.meta.env.VITE_API_BASE_URL ||
+      const baseUrl = import.meta.env.VITE_API_URL ||
         "http://localhost:10827/api";
       const url = `${baseUrl}/v1/download/${filename}`;
 

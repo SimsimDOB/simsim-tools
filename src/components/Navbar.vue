@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import routes from "@/router/routes";
+import Pinger from "@/components/Pinger.vue";
 
 const router = useRouter();
 const visibleRoutes = routes.filter((r) => r.name !== "Home");
@@ -34,6 +35,7 @@ const visibleRoutes = routes.filter((r) => r.name !== "Home");
             </router-link>
           </div>
         </div>
+        <Pinger />
       </div>
     </div>
   </nav>
