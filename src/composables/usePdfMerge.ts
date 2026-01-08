@@ -11,7 +11,6 @@ export function usePdfMerge() {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-      responseType: "blob",
     });
 
     return response.data;

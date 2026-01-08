@@ -16,6 +16,7 @@ const isDragging = ref(false);
 const draggedItemIndex = ref<number | null>(null);
 const dragOverIndex = ref<number | null>(null);
 const downloadUrl = ref<string | null>(null);
+const mergedPdfFile = ref<File | null>(null);
 const validExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".heic", ".heif"];
 
 const onDragStart = (event: DragEvent, index: number) => {
@@ -105,6 +106,8 @@ const moveDown = (index: number) => {
 const clearFiles = () => {
   fileItems.value = [];
   outputFilename.value = "merged.pdf";
+  downloadUrl.value = null;
+  mergedPdfFile.value = null;
 };
 
 const merge_files = async () => {
@@ -116,14 +119,12 @@ const merge_files = async () => {
 
   mergePdfs(files)
     .then((response) => {
-      if (downloadUrl.value) {
-        window.URL.revokeObjectURL(downloadUrl.value);
-      }
+      // Response contains { filename: "merged_xxx.pdf" }
+      const filename = response.filename;
+      const baseUrl = import.meta.env.VITE_API_BASE_URL ||
+        "http://localhost:10827/api";
+      const url = `${baseUrl}/v1/download/${filename}`;
 
-      // Create download link
-      const url = window.URL.createObjectURL(
-        new Blob([response], { type: "application/pdf" }),
-      );
       downloadUrl.value = url;
     })
     .catch((error) => {
@@ -133,6 +134,17 @@ const merge_files = async () => {
     .finally(() => {
       isUploading.value = false;
     });
+};
+
+const onDownloadDragStart = (event: DragEvent) => {
+  if (event.dataTransfer && downloadUrl.value) {
+    // Use DownloadURL format with actual HTTP URL
+    event.dataTransfer.setData(
+      "DownloadURL",
+      `application/pdf:${outputFilename.value}:${downloadUrl.value}`,
+    );
+    event.dataTransfer.effectAllowed = "copy";
+  }
 };
 
 const validExtensionsString = () => {
@@ -396,8 +408,10 @@ const validExtensionsString = () => {
           <a
             :href="downloadUrl"
             :download="outputFilename"
-            class="h-[42px] w-[42px] flex items-center justify-center rounded text-[#88c0d0] hover:bg-[#88c0d0] hover:text-[#2e3440] transition-colors"
+            class="h-[42px] w-[42px] flex items-center justify-center rounded text-[#88c0d0] hover:bg-[#88c0d0] hover:text-[#2e3440] transition-colors cursor-grab active:cursor-grabbing"
             title="Download Merged PDF"
+            draggable="true"
+            @dragstart="onDownloadDragStart"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
