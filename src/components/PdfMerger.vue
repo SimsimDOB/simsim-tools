@@ -195,7 +195,7 @@ const validExtensionsString = () => {
             '
           >
             <div class="flex flex-col items-center justify-center pt-5 pb-6">
-              <i class="pi pi-cloud-upload text-4xl text-[#88c0d0] mb-4"></i>
+              <i class="pi pi-cloud-upload text-4xl text-[#88c0d0] mb-2"></i>
               <p class="mb-2 text-sm text-[#d8dee9]">
                 <span class="font-semibold">Drag and drop</span> files here
               </p>
@@ -250,7 +250,7 @@ const validExtensionsString = () => {
             </div>
 
             <div class="flex items-center truncate flex-1 mr-4">
-              <span class="text-[#88c0d0] text-sm font-mono mr-3">{{
+              <span class="text-[#88c0d0] text-sm font-mono mr-3 select-none">{{
                   index + 1
                 }}.</span>
               <span class="truncate text-sm">{{ file.file.name }}</span>
@@ -261,7 +261,7 @@ const validExtensionsString = () => {
               <button
                 @click="moveUp(index)"
                 :disabled="index === 0"
-                class="p-1.5 rounded hover:bg-[#4c566a] text-[#d8dee9] hover:text-[#88c0d0] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                class="p-1.5 rounded hover:bg-[#2e3440] text-[#d8dee9] hover:text-[#88c0d0] disabled:opacity-30 disabled:cursor-not-allowed transition-colors leading-none"
                 title="Move Up"
               >
                 <i class="pi pi-chevron-up"></i>
@@ -269,14 +269,14 @@ const validExtensionsString = () => {
               <button
                 @click="moveDown(index)"
                 :disabled="index === fileItems.length - 1"
-                class="p-1.5 rounded hover:bg-[#4c566a] text-[#d8dee9] hover:text-[#88c0d0] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                class="p-1.5 rounded hover:bg-[#2e3440] text-[#d8dee9] hover:text-[#88c0d0] disabled:opacity-30 disabled:cursor-not-allowed transition-colors leading-none"
                 title="Move Down"
               >
                 <i class="pi pi-chevron-down"></i>
               </button>
               <button
                 @click="removeFile(index)"
-                class="p-1.5 rounded hover:bg-[#4c566a] text-[#bf616a] hover:text-[#d08770] transition-colors"
+                class="p-1.5 rounded hover:bg-[#2e3440] text-[#bf616a] hover:text-[#d08770] transition-colors leading-none"
                 title="Remove"
               >
                 <i class="pi pi-times"></i>

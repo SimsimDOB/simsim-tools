@@ -113,20 +113,7 @@ const removeFile = (index: number) => {
             v-if="fileRecords.length === 0"
             class="absolute inset-0 flex flex-col items-center justify-center text-[#eceff4] pointer-events-none"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-16 w-16 mb-4 text-[#4c566a]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              />
-            </svg>
+            <i class="pi pi-cloud-upload text-7xl text-[#88c0d0] mb-4"></i>
             <p class="text-lg font-medium">Drag and drop PDF files here</p>
           </div>
 
@@ -175,22 +162,11 @@ const removeFile = (index: number) => {
                   </td>
                   <td class="p-3 text-center">
                     <button
-                      class="text-[#bf616a] hover:text-[#d08770] hover:bg-[#2e3440] p-1.5 rounded transition-colors"
+                      class="text-[#bf616a] hover:text-[#d08770] hover:bg-[#2e3440] p-1.5 rounded transition-colors leading-none"
                       @click="removeFile(index)"
                       title="Remove file"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
+                      <i class="pi pi-times"></i>
                     </button>
                   </td>
                 </tr>
