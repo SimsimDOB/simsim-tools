@@ -3,7 +3,9 @@ import Navbar from "@/components/Navbar.vue";
 </script>
 
 <template>
-  <div class="h-screen flex flex-col bg-[#2e3440] overflow-hidden">
+  <div
+    class="h-screen flex flex-col bg-[#2e3440] overflow-hidden font-['MakoP']"
+  >
     <Navbar />
     <main class="flex-1 overflow-auto">
       <router-view />

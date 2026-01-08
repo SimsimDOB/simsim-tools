@@ -1,12 +1,15 @@
 {
   "version": "5",
   "specifiers": {
+    "npm:@primeuix/themes@^2.0.2": "2.0.2",
     "npm:@tailwindcss/vite@^4.1.17": "4.1.17_vite@7.2.7__@types+node@24.10.3__picomatch@4.0.3_@types+node@24.10.3",
     "npm:@types/node@^24.10.1": "24.10.3",
     "npm:@vitejs/plugin-vue@^6.0.1": "6.0.2_vite@7.2.7__@types+node@24.10.3__picomatch@4.0.3_vue@3.5.25__typescript@5.9.3_@types+node@24.10.3_typescript@5.9.3",
     "npm:@vue/tsconfig@~0.8.1": "0.8.1_typescript@5.9.3_vue@3.5.25__typescript@5.9.3",
     "npm:axios@^1.13.2": "1.13.2",
     "npm:gh-pages@^6.3.0": "6.3.0",
+    "npm:primeicons@7": "7.0.0",
+    "npm:primevue@^4.5.4": "4.5.4_vue@3.5.25__typescript@5.9.3_typescript@5.9.3",
     "npm:tailwindcss@^4.1.17": "4.1.17",
     "npm:typescript@~5.9.3": "5.9.3",
     "npm:vite@^7.2.4": "7.2.7_@types+node@24.10.3_picomatch@4.0.3",
@@ -234,6 +237,42 @@
       "dependencies": [
         "@nodelib/fs.scandir",
         "fastq"
+      ]
+    },
+    "@primeuix/styled@0.7.4": {
+      "integrity": "sha512-QSO/NpOQg8e9BONWRBx9y8VGMCMYz0J/uKfNJEya/RGEu7ARx0oYW0ugI1N3/KB1AAvyGxzKBzGImbwg0KUiOQ==",
+      "dependencies": [
+        "@primeuix/utils"
+      ]
+    },
+    "@primeuix/styles@2.0.2": {
+      "integrity": "sha512-LNtkJsTonNHF5ag+9s3+zQzm00+LRmffw68QRIHy6S/dam1JpdrrAnUzNYlWbaY7aE2EkZvQmx7Np7+PyHn+ow==",
+      "dependencies": [
+        "@primeuix/styled"
+      ]
+    },
+    "@primeuix/themes@2.0.2": {
+      "integrity": "sha512-prwQvA3tDGBz8yWSUenaJUttEMCEvPvxwOfFhDPmSe1vwsfVKL2Nmh5eZvtPFQnxmIOPsHZS7zc0/L3CzJ83Eg==",
+      "dependencies": [
+        "@primeuix/styled"
+      ]
+    },
+    "@primeuix/utils@0.6.3": {
+      "integrity": "sha512-/SLNQSKQ73WbBIsflKVqbpVjCfFYvQO3Sf1LMheXyxh8JqxO4M63dzP56wwm9OPGuCQ6MYOd2AHgZXz+g7PZcg=="
+    },
+    "@primevue/core@4.5.4_vue@3.5.25__typescript@5.9.3_typescript@5.9.3": {
+      "integrity": "sha512-lYJJB3wTrDJ8MkLctzHfrPZAqXVxoatjIsswSJzupatf6ZogJHVYADUKcn1JAkLLk8dtV1FA2AxDek663fHO5Q==",
+      "dependencies": [
+        "@primeuix/styled",
+        "@primeuix/utils",
+        "vue"
+      ]
+    },
+    "@primevue/icons@4.5.4_vue@3.5.25__typescript@5.9.3_typescript@5.9.3": {
+      "integrity": "sha512-DxgryEc7ZmUqcEhYMcxGBRyFzdtLIoy3jLtlH1zsVSRZaG+iSAcjQ88nvfkZxGUZtZBFL7sRjF6KLq3bJZJwUw==",
+      "dependencies": [
+        "@primeuix/utils",
+        "@primevue/core"
       ]
     },
     "@rolldown/pluginutils@1.0.0-beta.50": {
@@ -1091,6 +1130,19 @@
         "source-map-js"
       ]
     },
+    "primeicons@7.0.0": {
+      "integrity": "sha512-jK3Et9UzwzTsd6tzl2RmwrVY/b8raJ3QZLzoDACj+oTJ0oX7L9Hy+XnVwgo4QVKlKpnP/Ur13SXV/pVh4LzaDw=="
+    },
+    "primevue@4.5.4_vue@3.5.25__typescript@5.9.3_typescript@5.9.3": {
+      "integrity": "sha512-nTyEohZABFJhVIpeUxgP0EJ8vKcJAhD+Z7DYj95e7ie/MNUCjRNcGjqmE1cXtXi4z54qDfTSI9h2uJ51qz2DIw==",
+      "dependencies": [
+        "@primeuix/styled",
+        "@primeuix/styles",
+        "@primeuix/utils",
+        "@primevue/core",
+        "@primevue/icons"
+      ]
+    },
     "proxy-from-env@1.1.0": {
       "integrity": "sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg=="
     },
@@ -1248,12 +1300,15 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@primeuix/themes@^2.0.2",
         "npm:@tailwindcss/vite@^4.1.17",
         "npm:@types/node@^24.10.1",
         "npm:@vitejs/plugin-vue@^6.0.1",
         "npm:@vue/tsconfig@~0.8.1",
         "npm:axios@^1.13.2",
         "npm:gh-pages@^6.3.0",
+        "npm:primeicons@7",
+        "npm:primevue@^4.5.4",
         "npm:tailwindcss@^4.1.17",
         "npm:typescript@~5.9.3",
         "npm:vite@^7.2.4",
