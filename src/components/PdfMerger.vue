@@ -124,15 +124,7 @@ const merge_files = async () => {
 
   mergePdfs(files)
     .then(async (response) => {
-      // Response contains { filename: "merged_xxx.pdf" }
-      const filename = response.filename;
-      const baseUrl = import.meta.env.VITE_API_URL ||
-        "http://localhost:10827/api";
-      const url = `${baseUrl}/v1/download/${filename}`;
-
-      // Fetch the file and create a blob URL for proper filename control
-      const fileResponse = await fetch(url);
-      const blob = await fileResponse.blob();
+      const blob = new Blob([response], { type: "application/pdf" });
 
       // Revoke previous blob URL if exists
       if (downloadUrl.value && downloadUrl.value.startsWith("blob:")) {
