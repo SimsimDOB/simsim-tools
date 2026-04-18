@@ -186,7 +186,7 @@ const validExtensionsString = () => {
           <div
             v-for="(file, index) in fileItems"
             :key="file.id"
-            class="relative flex items-center justify-between bg-[#434c5e] px-3 rounded border border-[#4c566a] transition-all duration-200"
+            class="relative flex items-center justify-between bg-[#434c5e] px-3 rounded border border-[#4c566a] transition-colors duration-200"
           >
             <!-- Drag Handle -->
             <div
