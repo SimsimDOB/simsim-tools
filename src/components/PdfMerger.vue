@@ -87,19 +87,10 @@ const removeFile = (index: number) => {
   fileItems.value.splice(index, 1);
 };
 
-const moveUp = (index: number) => {
+const moveToTop = (index: number) => {
   if (index > 0) {
-    const temp = fileItems.value[index]!;
-    fileItems.value[index] = fileItems.value[index - 1]!;
-    fileItems.value[index - 1] = temp;
-  }
-};
-
-const moveDown = (index: number) => {
-  if (index < fileItems.value.length - 1) {
-    const temp = fileItems.value[index]!;
-    fileItems.value[index] = fileItems.value[index + 1]!;
-    fileItems.value[index + 1] = temp;
+    const item = fileItems.value.splice(index, 1)[0]!;
+    fileItems.value.unshift(item);
   }
 };
 
@@ -258,20 +249,12 @@ const validExtensionsString = () => {
             </div>
             <div class="flex space-x-2">
               <button
-                @click="moveUp(index)"
+                @click="moveToTop(index)"
                 :disabled="index === 0"
                 class="p-1.5 rounded hover:bg-[#2e3440] text-[#d8dee9] hover:text-[#88c0d0] disabled:opacity-30 disabled:cursor-not-allowed transition-colors leading-none"
-                title="Move Up"
+                title="Move to Top"
               >
                 <i class="pi pi-chevron-up"></i>
-              </button>
-              <button
-                @click="moveDown(index)"
-                :disabled="index === fileItems.length - 1"
-                class="p-1.5 rounded hover:bg-[#2e3440] text-[#d8dee9] hover:text-[#88c0d0] disabled:opacity-30 disabled:cursor-not-allowed transition-colors leading-none"
-                title="Move Down"
-              >
-                <i class="pi pi-chevron-down"></i>
               </button>
               <button
                 @click="removeFile(index)"
