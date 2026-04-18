@@ -153,6 +153,12 @@ const onDownloadDragStart = (event: DragEvent) => {
   }
 };
 
+const onDownloadDragEnd = (event: DragEvent) => {
+  if (event.dataTransfer?.dropEffect === "copy") {
+    clearFiles();
+  }
+};
+
 const outputFilenameWithPdf = computed(() => {
   const name = outputFilename.value.trim();
   return name.toLowerCase().endsWith(".pdf") ? name : `${name}.pdf`;
@@ -331,6 +337,7 @@ const validExtensionsString = () => {
             title="Download Merged PDF"
             draggable="true"
             @dragstart="onDownloadDragStart"
+            @dragend="onDownloadDragEnd"
           >
             <i class="pi pi-file-pdf text-3xl"></i>
           </a>
