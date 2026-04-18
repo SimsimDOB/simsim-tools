@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed, ref } from "vue";
+import { VueDraggable } from "vue-draggable-plus";
 import { usePdfMerge } from "@/composables/usePdfMerge";
 
 interface FileItem {
@@ -13,45 +14,9 @@ const fileItems = ref<FileItem[]>([]);
 const outputFilename = ref("merged.pdf");
 const isUploading = ref(false);
 const isDragging = ref(false);
-const draggedItemIndex = ref<number | null>(null);
-const dragOverIndex = ref<number | null>(null);
 const downloadUrl = ref<string | null>(null);
 const mergedPdfFile = ref<File | null>(null);
 const validExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".heic", ".heif"];
-
-const onDragStart = (event: DragEvent, index: number) => {
-  draggedItemIndex.value = index;
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.dropEffect = "move";
-  }
-};
-
-const onDragEnd = () => {
-  draggedItemIndex.value = null;
-  dragOverIndex.value = null;
-};
-
-const onDragOverItem = (index: number) => {
-  if (draggedItemIndex.value !== null && draggedItemIndex.value !== index) {
-    dragOverIndex.value = index;
-  }
-
-  if (draggedItemIndex.value === index) {
-    dragOverIndex.value = null;
-  }
-};
-
-const onDropReorder = (index: number) => {
-  dragOverIndex.value = null;
-  if (draggedItemIndex.value !== null) {
-    const draggedIndex = draggedItemIndex.value;
-    const item = fileItems.value[draggedIndex]!;
-    fileItems.value.splice(draggedIndex, 1);
-    fileItems.value.splice(index, 0, item);
-    draggedItemIndex.value = null;
-  }
-};
 
 const handleFiles = (fileList: FileList) => {
   for (let i = 0; i < fileList.length; i++) {
@@ -67,9 +32,7 @@ const handleFiles = (fileList: FileList) => {
 };
 
 const onDragOver = (_e: DragEvent) => {
-  if (draggedItemIndex.value === null) {
-    isDragging.value = true;
-  }
+  isDragging.value = true;
 };
 
 const onDragLeave = (_e: DragEvent) => {
@@ -78,7 +41,7 @@ const onDragLeave = (_e: DragEvent) => {
 
 const onDrop = (e: DragEvent) => {
   isDragging.value = false;
-  if (draggedItemIndex.value === null && e.dataTransfer?.files) {
+  if (e.dataTransfer?.files) {
     handleFiles(e.dataTransfer.files);
   }
 };
@@ -157,7 +120,7 @@ const outputFilenameWithPdf = computed(() => {
 
 const validExtensionsString = () => {
   const upperExtensions = validExtensions.map((ext) =>
-    ext.toUpperCase().replace(".", ""),
+    ext.toUpperCase().replace(".", "")
   );
   return upperExtensions.join(", ");
 };
@@ -179,10 +142,14 @@ const validExtensionsString = () => {
             @dragover.prevent="onDragOver"
             @dragleave.prevent="onDragLeave"
             @drop.prevent="onDrop"
-            :class="[
-              'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg transition-colors border-[#4c566a] hover:border-[#88c0d0]',
-              isDragging ? 'border-[#88c0d0] bg-[#4c566a]' : 'bg-[#434c5e]',
-            ]"
+            :class='
+              [
+                "flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg transition-colors border-[#4c566a] hover:border-[#88c0d0]",
+                isDragging
+                  ? "border-[#88c0d0] bg-[#4c566a]"
+                  : "bg-[#434c5e]",
+              ]
+            '
           >
             <div class="flex flex-col items-center justify-center pt-5 pb-6">
               <i class="pi pi-cloud-upload text-4xl text-[#88c0d0] mb-2"></i>
@@ -201,7 +168,7 @@ const validExtensionsString = () => {
       <div
         v-else
         class="mb-6 border-2 border-transparent rounded-lg transition-colors flex-1 min-h-0 flex flex-col"
-        :class="{ 'border-[#88c0d0] bg-[#4c566a] bg-opacity-20': isDragging }"
+        :class='{ "border-[#88c0d0] bg-[#4c566a] bg-opacity-20": isDragging }'
         @dragover.prevent="onDragOver"
         @dragleave.prevent="onDragLeave"
         @drop.prevent="onDrop"
@@ -209,43 +176,32 @@ const validExtensionsString = () => {
         <h2 class="text-xl font-semibold text-[#88c0d0] mb-3 px-2">
           Selected Files ({{ fileItems.length }})
         </h2>
-        <ul class="space-y-0.5 overflow-y-auto pr-2 py-1 px-2 flex-1">
-          <li
+        <VueDraggable
+          v-model="fileItems"
+          :animation="200"
+          handle=".drag-handle"
+          class="space-y-0.5 overflow-y-auto pr-2 py-1 px-2 flex-1"
+          ghost-class="opacity-30"
+        >
+          <div
             v-for="(file, index) in fileItems"
             :key="file.id"
-            @dragover.prevent="onDragOverItem(index)"
-            @drop="onDropReorder(index)"
             class="relative flex items-center justify-between bg-[#434c5e] px-3 rounded border border-[#4c566a] transition-all duration-200"
-            :class="{ 'opacity-50': draggedItemIndex === index }"
           >
-            <div
-              v-if="
-                draggedItemIndex !== null &&
-                dragOverIndex === index &&
-                draggedItemIndex !== index
-              "
-              class="absolute left-0 right-0 h-1 bg-[#88c0d0] rounded-full pointer-events-none z-10"
-              :class="draggedItemIndex > index ? '-top-1' : '-bottom-1'"
-            ></div>
-
             <!-- Drag Handle -->
             <div
-              class="mr-3 cursor-move text-[#d8dee9] hover:text-[#88c0d0] transition-colors"
-              draggable="true"
-              @dragstart="onDragStart($event, index)"
-              @dragend="onDragEnd"
+              class="drag-handle mr-3 cursor-move text-[#d8dee9] hover:text-[#88c0d0] transition-colors"
             >
               <i class="pi pi-equals"></i>
             </div>
 
             <div class="flex items-center truncate flex-1 mr-4">
-              <span class="text-[#88c0d0] text-sm font-mono mr-3 select-none"
-                >{{ index + 1 }}.</span
-              >
+              <span class="text-[#88c0d0] text-sm font-mono mr-3 select-none">{{
+                  index + 1
+                }}.</span>
               <span class="truncate text-sm">{{ file.file.name }}</span>
               <span class="ml-2 text-xs text-[#d8dee9] opacity-60"
-                >({{ (file.file.size / 1024 / 1024).toFixed(2) }} MB)</span
-              >
+              >({{ (file.file.size / 1024 / 1024).toFixed(2) }} MB)</span>
             </div>
             <div class="flex space-x-2">
               <button
@@ -264,8 +220,8 @@ const validExtensionsString = () => {
                 <i class="pi pi-times"></i>
               </button>
             </div>
-          </li>
-        </ul>
+          </div>
+        </VueDraggable>
       </div>
 
       <div class="flex gap-5">
@@ -311,8 +267,7 @@ const validExtensionsString = () => {
           class="flex flex-col items-center justify-center bg-[#434c5e] p-4 rounded-lg border border-[#4c566a]"
         >
           <label class="block text-sm font-medium text-[#d8dee9] mb-2"
-            >Output file</label
-          >
+          >Output file</label>
           <a
             :href="downloadUrl!"
             :download="outputFilenameWithPdf"
