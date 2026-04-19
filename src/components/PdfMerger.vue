@@ -16,7 +16,15 @@ const isUploading = ref(false);
 const isDragging = ref(false);
 const downloadUrl = ref<string | null>(null);
 const mergedPdfFile = ref<File | null>(null);
-const validExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".heic", ".heif"];
+const validExtensions = [
+  ".pdf",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".heic",
+  ".heif",
+  ".zip",
+];
 
 const handleFiles = (fileList: FileList) => {
   for (let i = 0; i < fileList.length; i++) {
