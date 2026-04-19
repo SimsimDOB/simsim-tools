@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import { VueDraggable } from "vue-draggable-plus";
 import { usePdfMerge } from "@/composables/usePdfMerge";
 
 interface FileItem {
@@ -13,45 +14,16 @@ const fileItems = ref<FileItem[]>([]);
 const outputFilename = ref("merged.pdf");
 const isUploading = ref(false);
 const isDragging = ref(false);
-const draggedItemIndex = ref<number | null>(null);
-const dragOverIndex = ref<number | null>(null);
 const downloadUrl = ref<string | null>(null);
-const mergedPdfFile = ref<File | null>(null);
-const validExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".heic", ".heif"];
-
-const onDragStart = (event: DragEvent, index: number) => {
-  draggedItemIndex.value = index;
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.dropEffect = "move";
-  }
-};
-
-const onDragEnd = () => {
-  draggedItemIndex.value = null;
-  dragOverIndex.value = null;
-};
-
-const onDragOverItem = (index: number) => {
-  if (draggedItemIndex.value !== null && draggedItemIndex.value !== index) {
-    dragOverIndex.value = index;
-  }
-
-  if (draggedItemIndex.value === index) {
-    dragOverIndex.value = null;
-  }
-};
-
-const onDropReorder = (index: number) => {
-  dragOverIndex.value = null;
-  if (draggedItemIndex.value !== null) {
-    const draggedIndex = draggedItemIndex.value;
-    const item = fileItems.value[draggedIndex]!;
-    fileItems.value.splice(draggedIndex, 1);
-    fileItems.value.splice(index, 0, item);
-    draggedItemIndex.value = null;
-  }
-};
+const validExtensions = [
+  ".pdf",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".heic",
+  ".heif",
+  ".zip",
+];
 
 const handleFiles = (fileList: FileList) => {
   for (let i = 0; i < fileList.length; i++) {
@@ -67,9 +39,7 @@ const handleFiles = (fileList: FileList) => {
 };
 
 const onDragOver = (_e: DragEvent) => {
-  if (draggedItemIndex.value === null) {
-    isDragging.value = true;
-  }
+  isDragging.value = true;
 };
 
 const onDragLeave = (_e: DragEvent) => {
@@ -78,7 +48,7 @@ const onDragLeave = (_e: DragEvent) => {
 
 const onDrop = (e: DragEvent) => {
   isDragging.value = false;
-  if (draggedItemIndex.value === null && e.dataTransfer?.files) {
+  if (e.dataTransfer?.files) {
     handleFiles(e.dataTransfer.files);
   }
 };
@@ -87,32 +57,16 @@ const removeFile = (index: number) => {
   fileItems.value.splice(index, 1);
 };
 
-const moveUp = (index: number) => {
+const moveToTop = (index: number) => {
   if (index > 0) {
-    const temp = fileItems.value[index]!;
-    fileItems.value[index] = fileItems.value[index - 1]!;
-    fileItems.value[index - 1] = temp;
-  }
-};
-
-const moveDown = (index: number) => {
-  if (index < fileItems.value.length - 1) {
-    const temp = fileItems.value[index]!;
-    fileItems.value[index] = fileItems.value[index + 1]!;
-    fileItems.value[index + 1] = temp;
+    const item = fileItems.value.splice(index, 1)[0]!;
+    fileItems.value.unshift(item);
   }
 };
 
 const clearFiles = () => {
-  // Revoke blob URL if exists
-  if (downloadUrl.value && downloadUrl.value.startsWith("blob:")) {
-    URL.revokeObjectURL(downloadUrl.value);
-  }
-
   fileItems.value = [];
   outputFilename.value = "merged.pdf";
-  downloadUrl.value = null;
-  mergedPdfFile.value = null;
 };
 
 const merge_files = async () => {
@@ -147,11 +101,22 @@ const onDownloadDragStart = (event: DragEvent) => {
     // Use DownloadURL format with actual HTTP URL
     event.dataTransfer.setData(
       "DownloadURL",
-      `application/pdf:${outputFilename.value}:${downloadUrl.value}`,
+      `application/pdf:${outputFilenameWithPdf.value}:${downloadUrl.value}`,
     );
     event.dataTransfer.effectAllowed = "copy";
   }
 };
+
+const onDownloadDragEnd = (event: DragEvent) => {
+  if (event.dataTransfer?.dropEffect === "copy") {
+    clearFiles();
+  }
+};
+
+const outputFilenameWithPdf = computed(() => {
+  const name = outputFilename.value.trim();
+  return name.toLowerCase().endsWith(".pdf") ? name : `${name}.pdf`;
+});
 
 const validExtensionsString = () => {
   const upperExtensions = validExtensions.map((ext) =>
@@ -211,32 +176,21 @@ const validExtensionsString = () => {
         <h2 class="text-xl font-semibold text-[#88c0d0] mb-3 px-2">
           Selected Files ({{ fileItems.length }})
         </h2>
-        <ul class="space-y-0.5 overflow-y-auto pr-2 py-1 px-2 flex-1">
-          <li
+        <VueDraggable
+          v-model="fileItems"
+          :animation="200"
+          handle=".drag-handle"
+          class="space-y-0.5 overflow-y-auto pr-2 py-1 px-2 flex-1"
+          ghost-class="opacity-30"
+        >
+          <div
             v-for="(file, index) in fileItems"
             :key="file.id"
-            @dragover.prevent="onDragOverItem(index)"
-            @drop="onDropReorder(index)"
-            class="relative flex items-center justify-between bg-[#434c5e] px-3 rounded border border-[#4c566a] transition-all duration-200"
-            :class='{ "opacity-50": draggedItemIndex === index }'
+            class="relative flex items-center justify-between bg-[#434c5e] px-3 rounded border border-[#4c566a] transition-colors duration-200"
           >
-            <div
-              v-if="
-                draggedItemIndex !== null &&
-                  dragOverIndex === index &&
-                  draggedItemIndex !== index
-              "
-              class="absolute left-0 right-0 h-1 bg-[#88c0d0] rounded-full pointer-events-none z-10"
-              :class='draggedItemIndex > index ? "-top-1" : "-bottom-1"'
-            >
-            </div>
-
             <!-- Drag Handle -->
             <div
-              class="mr-3 cursor-move text-[#d8dee9] hover:text-[#88c0d0] transition-colors"
-              draggable="true"
-              @dragstart="onDragStart($event, index)"
-              @dragend="onDragEnd"
+              class="drag-handle mr-3 cursor-move text-[#d8dee9] hover:text-[#88c0d0] transition-colors"
             >
               <i class="pi pi-equals"></i>
             </div>
@@ -251,20 +205,12 @@ const validExtensionsString = () => {
             </div>
             <div class="flex space-x-2">
               <button
-                @click="moveUp(index)"
+                @click="moveToTop(index)"
                 :disabled="index === 0"
                 class="p-1.5 rounded hover:bg-[#2e3440] text-[#d8dee9] hover:text-[#88c0d0] disabled:opacity-30 disabled:cursor-not-allowed transition-colors leading-none"
-                title="Move Up"
+                title="Move to Top"
               >
                 <i class="pi pi-chevron-up"></i>
-              </button>
-              <button
-                @click="moveDown(index)"
-                :disabled="index === fileItems.length - 1"
-                class="p-1.5 rounded hover:bg-[#2e3440] text-[#d8dee9] hover:text-[#88c0d0] disabled:opacity-30 disabled:cursor-not-allowed transition-colors leading-none"
-                title="Move Down"
-              >
-                <i class="pi pi-chevron-down"></i>
               </button>
               <button
                 @click="removeFile(index)"
@@ -274,8 +220,8 @@ const validExtensionsString = () => {
                 <i class="pi pi-times"></i>
               </button>
             </div>
-          </li>
-        </ul>
+          </div>
+        </VueDraggable>
       </div>
 
       <div class="flex gap-5">
@@ -324,11 +270,12 @@ const validExtensionsString = () => {
           >Output file</label>
           <a
             :href="downloadUrl!"
-            :download="outputFilename"
+            :download="outputFilenameWithPdf"
             class="h-[42px] w-[42px] flex items-center justify-center rounded text-[#88c0d0] hover:bg-[#88c0d0] hover:text-[#2e3440] transition-colors cursor-grab active:cursor-grabbing"
             title="Download Merged PDF"
             draggable="true"
             @dragstart="onDownloadDragStart"
+            @dragend="onDownloadDragEnd"
           >
             <i class="pi pi-file-pdf text-3xl"></i>
           </a>
