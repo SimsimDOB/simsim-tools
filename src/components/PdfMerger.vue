@@ -15,7 +15,6 @@ const outputFilename = ref("merged.pdf");
 const isUploading = ref(false);
 const isDragging = ref(false);
 const downloadUrl = ref<string | null>(null);
-const mergedPdfFile = ref<File | null>(null);
 const validExtensions = [
   ".pdf",
   ".jpg",
@@ -66,15 +65,8 @@ const moveToTop = (index: number) => {
 };
 
 const clearFiles = () => {
-  // Revoke blob URL if exists
-  if (downloadUrl.value && downloadUrl.value.startsWith("blob:")) {
-    URL.revokeObjectURL(downloadUrl.value);
-  }
-
   fileItems.value = [];
   outputFilename.value = "merged.pdf";
-  downloadUrl.value = null;
-  mergedPdfFile.value = null;
 };
 
 const merge_files = async () => {
