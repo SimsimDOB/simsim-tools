@@ -109,7 +109,9 @@ const onDownloadDragStart = (event: DragEvent) => {
 
 const onDownloadDragEnd = (event: DragEvent) => {
   if (event.dataTransfer?.dropEffect === "copy") {
-    clearFiles();
+    setTimeout(() => {
+      clearFiles();
+    }, 10000);
   }
 };
 
@@ -120,7 +122,7 @@ const outputFilenameWithPdf = computed(() => {
 
 const validExtensionsString = () => {
   const upperExtensions = validExtensions.map((ext) =>
-    ext.toUpperCase().replace(".", "")
+    ext.toUpperCase().replace(".", ""),
   );
   return upperExtensions.join(", ");
 };
@@ -142,14 +144,10 @@ const validExtensionsString = () => {
             @dragover.prevent="onDragOver"
             @dragleave.prevent="onDragLeave"
             @drop.prevent="onDrop"
-            :class='
-              [
-                "flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg transition-colors border-[#4c566a] hover:border-[#88c0d0]",
-                isDragging
-                  ? "border-[#88c0d0] bg-[#4c566a]"
-                  : "bg-[#434c5e]",
-              ]
-            '
+            :class="[
+              'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg transition-colors border-[#4c566a] hover:border-[#88c0d0]',
+              isDragging ? 'border-[#88c0d0] bg-[#4c566a]' : 'bg-[#434c5e]',
+            ]"
           >
             <div class="flex flex-col items-center justify-center pt-5 pb-6">
               <i class="pi pi-cloud-upload text-4xl text-[#88c0d0] mb-2"></i>
@@ -168,7 +166,7 @@ const validExtensionsString = () => {
       <div
         v-else
         class="mb-6 border-2 border-transparent rounded-lg transition-colors flex-1 min-h-0 flex flex-col"
-        :class='{ "border-[#88c0d0] bg-[#4c566a] bg-opacity-20": isDragging }'
+        :class="{ 'border-[#88c0d0] bg-[#4c566a] bg-opacity-20': isDragging }"
         @dragover.prevent="onDragOver"
         @dragleave.prevent="onDragLeave"
         @drop.prevent="onDrop"
@@ -196,12 +194,13 @@ const validExtensionsString = () => {
             </div>
 
             <div class="flex items-center truncate flex-1 mr-4">
-              <span class="text-[#88c0d0] text-sm font-mono mr-3 select-none">{{
-                  index + 1
-                }}.</span>
+              <span class="text-[#88c0d0] text-sm font-mono mr-3 select-none"
+                >{{ index + 1 }}.</span
+              >
               <span class="truncate text-sm">{{ file.file.name }}</span>
               <span class="ml-2 text-xs text-[#d8dee9] opacity-60"
-              >({{ (file.file.size / 1024 / 1024).toFixed(2) }} MB)</span>
+                >({{ (file.file.size / 1024 / 1024).toFixed(2) }} MB)</span
+              >
             </div>
             <div class="flex space-x-2">
               <button
@@ -267,7 +266,8 @@ const validExtensionsString = () => {
           class="flex flex-col items-center justify-center bg-[#434c5e] p-4 rounded-lg border border-[#4c566a]"
         >
           <label class="block text-sm font-medium text-[#d8dee9] mb-2"
-          >Output file</label>
+            >Output file</label
+          >
           <a
             :href="downloadUrl!"
             :download="outputFilenameWithPdf"
