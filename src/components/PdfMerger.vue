@@ -67,6 +67,10 @@ const moveToTop = (index: number) => {
 const clearFiles = () => {
   fileItems.value = [];
   outputFilename.value = "merged.pdf";
+  if (downloadUrl.value && downloadUrl.value.startsWith("blob:")) {
+    URL.revokeObjectURL(downloadUrl.value);
+  }
+  downloadUrl.value = null;
 };
 
 const merge_files = async () => {
