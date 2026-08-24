@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// Twin file: SummonsesCounter.vue. This component is a deliberate
+// duplicate of it; apply any shared-logic fix to both files.
 import { ref } from "vue";
 import { useMultiSummonsesCount } from "@/composables/useMultiSummonsesCount";
 

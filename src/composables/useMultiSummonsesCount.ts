@@ -1,3 +1,5 @@
+// Twin file: useSummonsesCount.ts. This composable is a deliberate
+// duplicate of it; apply any shared-logic fix to both files.
 import api from "@/services/api";
 
 export function useMultiSummonsesCount() {
