@@ -1,4 +1,5 @@
 import SummonsesCounter from "@/components/SummonsesCounter.vue";
+import MultiSummonsesCounter from "@/components/MultiSummonsesCounter.vue";
 import Home from "@/components/Home.vue";
 import PdfMerger from "@/components/PdfMerger.vue";
 
@@ -20,6 +21,15 @@ const routes = [
       requiresGuest: true,
       icon: "/summonses_counter.png",
       title: "Summonses Counter",
+    },
+  },
+  {
+    path: "/multi-summonses-counter",
+    name: "MultiSummonsesCounter",
+    component: MultiSummonsesCounter,
+    meta: {
+      icon: "/summonses_counter.png",
+      title: "Multi Summonses Counter",
     },
   },
   {
