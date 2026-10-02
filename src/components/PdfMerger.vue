@@ -19,6 +19,7 @@ const validExtensions = [
   ".pdf",
   ".jpg",
   ".jpeg",
+  ".jfif",
   ".png",
   ".heic",
   ".heif",
