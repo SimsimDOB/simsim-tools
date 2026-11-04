@@ -2,6 +2,7 @@ import SummonsesCounter from "@/components/SummonsesCounter.vue";
 import MultiSummonsesCounter from "@/components/MultiSummonsesCounter.vue";
 import Home from "@/components/Home.vue";
 import PdfMerger from "@/components/PdfMerger.vue";
+import SummonsesUpdater from "@/components/SummonsesUpdater.vue";
 
 const routes = [
   {
@@ -39,6 +40,15 @@ const routes = [
     meta: {
       icon: "/pdf_merger.png",
       title: "PDF Merger",
+    },
+  },
+  {
+    path: "/summonses-updater",
+    name: "SummonsesUpdater",
+    component: SummonsesUpdater,
+    meta: {
+      icon: "/summonses_updater.png",
+      title: "Summonses Updater",
     },
   },
 ];
