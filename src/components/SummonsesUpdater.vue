@@ -30,6 +30,7 @@ const logEntries = ref<LogEntry[]>([]);
 const nextCursor = ref(0);
 const showFullLog = ref(false);
 const downloadUrl = ref<string | null>(null);
+const downloadError = ref<string | null>(null);
 const elapsedSeconds = ref(0);
 const fileInput = ref<HTMLInputElement | null>(null);
 const logPanel = ref<HTMLElement | null>(null);
@@ -63,6 +64,7 @@ const clear = () => {
   logEntries.value = [];
   nextCursor.value = 0;
   showFullLog.value = false;
+  downloadError.value = null;
   elapsedSeconds.value = 0;
   if (fileInput.value) fileInput.value.value = "";
 };
@@ -87,12 +89,36 @@ const onDrop = (e: DragEvent) => {
 };
 
 const onFileInput = (e: Event) => {
-  acceptFile((e.target as HTMLInputElement).files?.[0]);
+  const input = e.target as HTMLInputElement;
+  acceptFile(input.files?.[0]);
+  // Reset so picking the same file again (after Remove or a rejected
+  // upload) fires `change` again.
+  input.value = "";
 };
 
 const formatSize = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 
 // --- job lifecycle --------------------------------------------------------
+
+// The job stays on the server for an hour after it finishes, so a failed
+// download is retryable; never let it keep the page stuck in "running".
+const fetchDownload = async (id: string) => {
+  downloadError.value = null;
+  try {
+    const blob = await download(id);
+    revokeDownload();
+    downloadUrl.value = URL.createObjectURL(
+      new Blob([blob], { type: XLSX_MIME }),
+    );
+  } catch (error) {
+    console.error("Summonses updater download failed:", error);
+    downloadError.value = errorMessage(error);
+  }
+};
+
+const retryDownload = () => {
+  if (jobId.value) fetchDownload(jobId.value);
+};
 
 const tick = async () => {
   elapsedSeconds.value += 1;
@@ -108,11 +134,7 @@ const tick = async () => {
     if (snap.status !== "running") {
       stopTimer();
       if (snap.status === "done" || snap.status === "cancelled") {
-        const blob = await download(jobId.value);
-        revokeDownload();
-        downloadUrl.value = URL.createObjectURL(
-          new Blob([blob], { type: XLSX_MIME }),
-        );
+        await fetchDownload(jobId.value);
       }
       phase.value = "finished";
     }
@@ -414,6 +436,20 @@ const onDownloadDragStart = (event: DragEvent) => {
             <p v-if="finishedStatus === 'failed'" class="text-sm text-[#bf616a]">
               {{ failureText }}
             </p>
+            <div
+              v-else-if="downloadError"
+              class="flex flex-col md:flex-row md:items-center gap-3 text-sm text-[#bf616a]"
+            >
+              <span class="flex-1"
+                >Could not fetch the updated workbook: {{ downloadError }}</span
+              >
+              <button
+                @click="retryDownload"
+                class="bg-[#88c0d0] text-[#2e3440] font-bold py-1.5 px-4 rounded hover:bg-[#8fbcbb] cursor-pointer transition-colors whitespace-nowrap"
+              >
+                Retry download
+              </button>
+            </div>
             <p v-else class="text-sm opacity-80">
               The updated workbook is ready — click or drag the icon to save it.
             </p>
